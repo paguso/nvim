@@ -1,0 +1,56 @@
+snippet launch-c launch.json for C projects
+	{
+		"configurations": [
+			{
+				"name": "${1:debug}",
+				"type": "lldb",
+				"request": "launch",
+				"program": "${2:\${workspaceFolder\}/a.out}",
+				"args": [${3}],
+				"stopAtEntry": ${4:true},
+				"cwd": "${5:\${workspaceFolder\}}",
+				"environment": [],
+				"externalConsole": false,
+				"MIMode": "gdb",
+				"setupCommands": [
+					{
+						"description": "Enable pretty-printing for gdb",
+						"text": "-enable-pretty-printing",
+						"ignoreFailures": true
+					},
+					{
+						"description": "Set Disassembly Flavor to Intel",
+						"text": "-gdb-set disassembly-flavor intel",
+						"ignoreFailures": true
+					}
+				],
+				"preLaunchTask": "${6:build}",
+				"miDebuggerPath": "${7:/usr/bin/gdb}"
+			},
+		],
+		"version": "2.0.0"
+	}
+
+snippet tasks-make tasks.json for Makefile-based C projects
+	{
+		"tasks": [
+			{
+				"type": "shell",
+				"label": "${1:build}",
+				"command": "make",
+				"args": ["${2:build}"],
+				"options": {
+					"cwd": "${3:\${workspaceFolder\}}"
+				},
+				"problemMatcher": [
+					"$gcc"
+				],
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"detail": ""
+			}
+		],
+		"version": "2.0.0"
+	}
