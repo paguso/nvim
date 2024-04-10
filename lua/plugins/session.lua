@@ -6,9 +6,9 @@ return {
 				log_level = "error",
 				auto_session_suppress_dirs = { "~/", "~/Documents", "~/Projects", "~/Downloads", "/" },
 			})
-			require("lualine").setup({
-				sections = { lualine_c = { require("auto-session.lib").current_session_name } },
-			})
+			--			require("lualine").setup({
+			--				sections = { lualine_c = { require("auto-session.lib").current_session_name } },
+			--			})
 		end,
 	},
 	{

@@ -1,4 +1,4 @@
-return {
+local ret = {
 	"akinsho/bufferline.nvim",
 	version = "*",
 	dependencies = "nvim-tree/nvim-web-devicons",
@@ -29,3 +29,5 @@ return {
 		keymap.set("n", "<leader>bp", "<cmd>BufferLinePickClose<CR>", { desc = "[B]ufferline [P]ick to close" })
 	end,
 }
+
+return {}

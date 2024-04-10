@@ -34,8 +34,12 @@ return {
 		end, { desc = "[H]arpoon [L] Window" })
 
 		vim.keymap.set("n", "<leader>ha", function()
-			harpoon:list():append()
-		end, { desc = "[H]arpoon [A]ppend" })
+			harpoon:list():add()
+		end, { desc = "[H]arpoon [A]dd" })
+
+		vim.keymap.set("n", "<leader>hr", function()
+			harpoon:list():remove()
+		end, { desc = "[H]arpoon [R]emove" })
 
 		vim.keymap.set("n", "<leader>h1", function()
 			harpoon:list():select(1)
