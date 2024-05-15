@@ -87,6 +87,13 @@ snippet ir "if error not nil, return err"
 	}
 	${0}
 
+snippet iferr "if error not nil, do something"
+	if err != nil {
+		${1}
+	}
+	${2}
+
+
 snippet f "false"
 	false
 

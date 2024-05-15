@@ -58,7 +58,7 @@ return {
 						["<c-enter>"] = "to_fuzzy_refine",
 						["<c-k>"] = actions.move_selection_previous,
 						["<c-j>"] = actions.move_selection_next,
-						["<c-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+						--["<c-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
 					},
 				},
 			},

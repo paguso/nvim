@@ -70,6 +70,20 @@ return {
 				},
 			}
 
+			dap.configurations.rust = {
+				{
+					name = "Launch",
+					type = "lldb",
+					request = "launch",
+					program = function()
+						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+					end,
+					cwd = "${workspaceFolder}",
+					stopOnEntry = false,
+					args = {},
+				},
+			}
+
 			local dbgcontinue = function()
 				if vim.fn.filereadable(".vscode/launch.json") then
 					require("dap.ext.vscode").load_launchjs(nil, { lldb = { "c", "cpp" } })
@@ -77,6 +91,7 @@ return {
 				require("dap").continue()
 			end
 
+			require("dap").set_exception_breakpoints({ "uncaught", "raised" })
 			--require("dap.ext.vscode").load_launchjs(nil, {})
 
 			vim.keymap.set("n", "<Leader>db", ":DapToggleBreakpoint<CR>", { desc = "Debug toggle breakpoint" })
