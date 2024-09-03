@@ -37,8 +37,8 @@ keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "[T]ab [P]revious" }) --
 keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "[T]ab open with current buffer ([F]ile)" }) --  move current buffer to new tab
 
 -- Resize windows with Ctrl-arrows
-vim.cmd([[nnoremap <silent> <C-Left>  :vertical resize +1<CR>]])
-vim.cmd([[nnoremap <silent> <C-Right> :vertical resize -1<CR>]])
+vim.cmd([[nnoremap <silent> <C-Left>  :vertical resize -1<CR>]])
+vim.cmd([[nnoremap <silent> <C-Right> :vertical resize +1<CR>]])
 vim.cmd([[nnoremap  <C-Up>            :resize -1<CR>]])
 vim.cmd([[nnoremap  <C-Down>          :resize +1<CR>]])
 

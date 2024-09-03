@@ -1,5 +1,6 @@
 return { -- Autoformat
 	"stevearc/conform.nvim",
+	branch = "nvim-0.9",
 	opts = {
 		notify_on_error = false,
 		format_on_save = {

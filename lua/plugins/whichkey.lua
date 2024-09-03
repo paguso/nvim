@@ -1,6 +1,6 @@
 return {
 	"folke/which-key.nvim",
-	event = "VimEnter",
+	event = "VeryLazy",
 	init = function()
 		vim.o.timeout = true
 		vim.o.timeoutlen = 300
@@ -9,11 +9,10 @@ return {
 		-- your configuration comes here
 		-- or leave it empty to use the default settings
 		-- refer to the configuration section below
-		window = {
+		win = {
 			border = "none", -- "single",
 		},
 		defaults = {
-			["<localLeader>l"] = { name = "+vimtex" },
-		},
-	},
+			["<localLeader>l"] = { name = "+vimtex" },},
+},
 }
