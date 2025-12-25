@@ -52,6 +52,15 @@ opt.splitbelow = true -- split horizontal window to the bottom
 -- turn off swapfile
 opt.swapfile = false
 
+-- Use LSP for folding
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.lsp.foldexpr()"
+
+-- Optional but recommended
+opt.foldlevel = 99 -- open folds by default
+opt.foldlevelstart = 99
+opt.foldenable = true
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
