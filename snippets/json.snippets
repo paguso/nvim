@@ -3,7 +3,7 @@ snippet launch-c launch.json for C projects
 		"configurations": [
 			{
 				"name": "${1:debug}",
-				"type": "lldb",
+				"type": "codelldb",
 				"request": "launch",
 				"program": "${2:\${workspaceFolder\}/a.out}",
 				"args": [${3}],
