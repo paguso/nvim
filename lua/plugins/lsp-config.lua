@@ -105,6 +105,11 @@ return {
 				cmd = {
 					"clangd",
 					"--offset-encoding=utf-16",
+					"--background-index",
+					"--clang-tidy",
+					-- The critical flag for finding system headers
+					"--query-driver=/usr/bin/gcc,/usr/bin/g++",
+					"--header-insertion=never",
 				},
 			},
 			gopls = {},
