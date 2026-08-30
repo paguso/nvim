@@ -49,6 +49,19 @@ return {
 				type = "executable",
 				command = "gdb",
 				args = { "--interpreter=dap", "--eval-command", "set print pretty on" },
+				outputMode = "remote",
+			}
+
+			dap.configurations.c = {}
+
+			dap.adapters.codelldb = {
+				name = "codelldb",
+				type = "server",
+				port = "${port}",
+				executable = {
+					command = "codelldb",
+					args = { "--port", "${port}" },
+				},
 			}
 
 			dap.configurations.c = {
@@ -86,19 +99,6 @@ return {
 					end,
 					cwd = "${workspaceFolder}",
 				},
-			}
-
-			dap.adapters.codelldb = {
-				name = "codelldb",
-				type = "server",
-				port = "${port}",
-				executable = {
-					command = "codelldb",
-					args = { "--port", "${port}" },
-				},
-			}
-
-			dap.configurations.c = {
 				{
 					name = "Launch",
 					type = "codelldb",
@@ -160,10 +160,12 @@ return {
 				},
 			}
 
+			require("dap-python").setup("~/.virtualenvs/debugpy/bin/python")
+
 			local dbgcontinue = function()
-				if vim.fn.filereadable(".vscode/launch.json") then
-					require("dap.ext.vscode").load_launchjs(nil, { lldb = { "c", "cpp" } })
-				end
+				-- if vim.fn.filereadable(".vscode/launch.json") then
+				-- 	require("dap.ext.vscode").load_launchjs(nil, { lldb = { "c", "cpp" } })
+				-- end
 				require("dap").continue()
 			end
 
