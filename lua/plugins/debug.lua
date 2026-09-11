@@ -17,42 +17,17 @@ return {
 		config = function()
 			local dap = require("dap")
 
-			--[[ -- required gdb 14
-			dap.adapters.gdb = {
-				type = "executable",
-				command = "gdb",
-				args = { "-i", "dap" },
-			} ]]
+			-- ============================================================
+			-- Adapters
+			-- ============================================================
 
-			--[[ dap.configurations.c = {
-				{
-					name = "Launch",
-					type = "gdb",
-					request = "launch",
-					program = function()
-						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-					end,
-					cwd = "${workspaceFolder}",
-					stopAtBeginningOfMainSubprogram = true,
-				},
-			} ]]
-
-			--[[
-			dap.adapters.lldb = {
-				type = "executable",
-				command = "/usr/bin/lldb-vscode-14",
-				name = "lldb",
-			}
-			]]
-
+			-- Requires GDB 14+ built with Python support (for --interpreter=dap).
+			-- Check with: gdb --version
 			dap.adapters.gdb = {
 				type = "executable",
 				command = "gdb",
 				args = { "--interpreter=dap", "--eval-command", "set print pretty on" },
-				outputMode = "remote",
 			}
-
-			dap.configurations.c = {}
 
 			dap.adapters.codelldb = {
 				name = "codelldb",
@@ -64,7 +39,41 @@ return {
 				},
 			}
 
+			-- ============================================================
+			-- Configurations
+			-- ============================================================
+
 			dap.configurations.c = {
+				{
+					name = "Launch (codelldb)",
+					type = "codelldb",
+					request = "launch",
+					program = function()
+						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+					end,
+					cwd = "${workspaceFolder}",
+					stopOnEntry = false,
+					args = {},
+					setupCommands = {
+						{
+							text = "-enable-pretty-printing",
+							description = "enable pretty printing",
+							ignoreFailures = false,
+						},
+					},
+					-- 💀
+					-- if you change `runInTerminal` to true, you might need to change the
+					-- yama/ptrace_scope setting:
+					--
+					--    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+					--
+					-- Otherwise you might get:
+					--
+					--    Error on launch: Failed to attach to the target process
+					--
+					-- Be aware of the implications before doing so:
+					-- https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html
+				},
 				{
 					name = "Launch (GDB)",
 					type = "gdb",
@@ -72,7 +81,7 @@ return {
 					program = function()
 						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
 					end,
-					args = {}, -- provide arguments if needed
+					args = {},
 					cwd = "${workspaceFolder}",
 					stopAtBeginningOfMainSubprogram = false,
 				},
@@ -98,37 +107,6 @@ return {
 						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
 					end,
 					cwd = "${workspaceFolder}",
-				},
-				{
-					name = "Launch",
-					type = "codelldb",
-					request = "launch",
-					program = function()
-						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-					end,
-					cwd = "${workspaceFolder}",
-					stopOnEntry = false,
-					args = {},
-					setupCommands = {
-						{
-							text = "-enable-pretty-printing",
-							description = "enable pretty printing",
-							ignoreFailures = false,
-						},
-					},
-
-					-- 💀
-					-- if you change `runInTerminal` to true, you might need to change the yama/ptrace_scope setting:
-					--
-					--    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
-					--
-					-- Otherwise you might get the following error:
-					--
-					--    Error on launch: Failed to attach to the target process
-					--
-					-- But you should be aware of the implications:
-					-- https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html
-					-- runInTerminal = false,
 				},
 			}
 
@@ -160,17 +138,33 @@ return {
 				},
 			}
 
+			-- ============================================================
+			-- Language-specific setup
+			-- ============================================================
+
+			require("dap-go").setup()
 			require("dap-python").setup("~/.virtualenvs/debugpy/bin/python")
+
+			-- ============================================================
+			-- Listeners
+			-- ============================================================
+
+			-- Exception breakpoints can only be set once a session is active,
+			-- so hook this into session start rather than calling it at load time.
+			dap.listeners.after.event_initialized["exception_breakpoints"] = function()
+				dap.set_exception_breakpoints({ "uncaught", "raised" })
+			end
+
+			-- ============================================================
+			-- Keymaps
+			-- ============================================================
 
 			local dbgcontinue = function()
 				-- if vim.fn.filereadable(".vscode/launch.json") then
 				-- 	require("dap.ext.vscode").load_launchjs(nil, { lldb = { "c", "cpp" } })
 				-- end
-				require("dap").continue()
+				dap.continue()
 			end
-
-			require("dap").set_exception_breakpoints({ "uncaught", "raised" })
-			--require("dap.ext.vscode").load_launchjs(nil, {})
 
 			vim.keymap.set("n", "<Leader>db", ":DapToggleBreakpoint<CR>", { desc = "Debug toggle breakpoint" })
 			vim.keymap.set("n", "<F8>", ":DapToggleBreakpoint<CR>", { desc = "Debug toggle breakpoint" })
@@ -185,22 +179,19 @@ return {
 			vim.keymap.set("n", "<F11>", ":DapStepInto<CR>", { desc = "Debug step into" })
 			vim.keymap.set("n", "<leader>dt", ":DapTerminate<CR>", { desc = "Debug terminate" })
 			vim.keymap.set("n", "<S-F5>", ":DapTerminate<CR>", { desc = "Debug terminate" })
-
-			-- Initialize specific servers
-			require("dap-go").setup()
-			require("dap-python").setup("~/.virtualenvs/debugpy/bin/python")
 		end,
 	},
+
 	{
 		"folke/neodev.nvim",
-		ops = {},
+		opts = {},
 		config = function()
 			require("neodev").setup({
 				library = { plugins = { "nvim-dap-ui" }, types = true },
-				--...,
 			})
 		end,
 	},
+
 	{
 		"jay-babu/mason-nvim-dap.nvim",
 		opts = {
@@ -213,16 +204,16 @@ return {
 			handlers = {},
 
 			-- You'll need to check that you have the required things installed
-
 			-- online, please don't ask me how to install them :)
 			ensure_installed = {
 				-- Update this to ensure that you have the debuggers for the langs you want
-				"cpptools",
-				"delve",
-				"debugpy",
+				"codelldb", -- c, cpp, rust
+				"delve", -- go
+				"debugpy", -- python
 			},
 		},
 	},
+
 	{
 		"theHamsta/nvim-dap-virtual-text",
 		config = function()
@@ -266,9 +257,6 @@ return {
 			dap.listeners.after.event_initialized["dapui_config"] = dapui.open
 			dap.listeners.before.event_terminated["dapui_config"] = dapui.close
 			dap.listeners.before.event_exited["dapui_config"] = dapui.close
-
-			--vim.fn.sign_define("DapBreakpoint", { text = "🔴", texthl = "", linehl = "", numhl = "" })
-			--vim.fn.sign_define("DapStopped", { text = "▶️,", texthl = "", linehl = "", numhl = "" })
 			vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "", linehl = "", numhl = "" })
 			vim.fn.sign_define("DapStopped", { text = "", texthl = "", linehl = "", numhl = "" })
 		end,
