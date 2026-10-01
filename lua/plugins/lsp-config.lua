@@ -14,6 +14,18 @@ return {
 		-- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
 		-- used for completion, annotations and signatures of Neovim apis
 		{ "folke/neodev.nvim", opts = {} },
+
+		-- lsp_signature for showing autocompletion in a floating window as you type
+		{
+			"ray-x/lsp_signature.nvim",
+			event = "InsertEnter",
+			opts = {
+				bind = true,
+				handler_opts = {
+					border = "rounded"
+				}
+			},
+		},
 	},
 
 	config = function()
@@ -113,7 +125,18 @@ return {
 				},
 			},
 			gopls = {},
-			pyright = {},
+			pyright = {
+				on_attach = on_attach,
+				settings = {
+					python = {
+						analysis = {
+							autoSearchPaths = true,
+							useLibraryCodeForTypes = true,
+							diagnosticMode = "workspace", -- Options: "openFilesOnly" or "workspace"
+						},
+					},
+				},
+			},
 			texlab = {},
 			rust_analyzer = {},
 			-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
