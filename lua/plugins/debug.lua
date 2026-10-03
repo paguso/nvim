@@ -29,14 +29,10 @@ return {
 				args = { "--interpreter=dap", "--eval-command", "set print pretty on" },
 			}
 
-			dap.adapters.codelldb = {
-				name = "codelldb",
-				type = "server",
-				port = "${port}",
-				executable = {
-					command = "codelldb",
-					args = { "--port", "${port}" },
-				},
+			dap.adapters.lldb = {
+				type = 'executable',
+				command = '/usr/bin/lldb-dap', -- adjust as needed, must be absolute path
+				name = 'lldb'
 			}
 
 			-- ============================================================
@@ -44,36 +40,6 @@ return {
 			-- ============================================================
 
 			dap.configurations.c = {
-				{
-					name = "Launch (codelldb)",
-					type = "codelldb",
-					request = "launch",
-					program = function()
-						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-					end,
-					cwd = "${workspaceFolder}",
-					stopOnEntry = false,
-					args = {},
-					setupCommands = {
-						{
-							text = "-enable-pretty-printing",
-							description = "enable pretty printing",
-							ignoreFailures = false,
-						},
-					},
-					-- 💀
-					-- if you change `runInTerminal` to true, you might need to change the
-					-- yama/ptrace_scope setting:
-					--
-					--    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
-					--
-					-- Otherwise you might get:
-					--
-					--    Error on launch: Failed to attach to the target process
-					--
-					-- Be aware of the implications before doing so:
-					-- https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html
-				},
 				{
 					name = "Launch (GDB)",
 					type = "gdb",
@@ -107,6 +73,36 @@ return {
 						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
 					end,
 					cwd = "${workspaceFolder}",
+				},
+				{
+					name = "Launch (lldb)",
+					type = "lldb",
+					request = "launch",
+					program = function()
+						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+					end,
+					cwd = "${workspaceFolder}",
+					stopOnEntry = false,
+					args = {},
+					setupCommands = {
+						{
+							text = "-enable-pretty-printing",
+							description = "enable pretty printing",
+							ignoreFailures = false,
+						},
+					},
+					-- 💀
+					-- if you change `runInTerminal` to true, you might need to change the
+					-- yama/ptrace_scope setting:
+					--
+					--    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+					--
+					-- Otherwise you might get:
+					--
+					--    Error on launch: Failed to attach to the target process
+					--
+					-- Be aware of the implications before doing so:
+					-- https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html
 				},
 			}
 

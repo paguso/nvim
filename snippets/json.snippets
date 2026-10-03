@@ -1,9 +1,9 @@
-snippet launch-c launch.json for C projects
+snippet launch-c-gdb launch.json for C projects with GDB
 	{
 		"configurations": [
 			{
-				"name": "${1:debug}",
-				"type": "codelldb",
+				"name": "${1:debug} (GDB)",
+				"type": "gdb",
 				"request": "launch",
 				"program": "${2:\${workspaceFolder\}/a.out}",
 				"args": [${3}],
@@ -16,17 +16,50 @@ snippet launch-c launch.json for C projects
 					{
 						"description": "Enable pretty-printing for gdb",
 						"text": "-enable-pretty-printing",
-						"ignoreFailures": true
+						"ignoreFailures": false
 					},
 					{
 						"description": "Set Disassembly Flavor to Intel",
 						"text": "-gdb-set disassembly-flavor intel",
-						"ignoreFailures": true
+						"ignoreFailures": false
 					}
 				],
 				"preLaunchTask": "${6:build}",
 				"miDebuggerPath": "${7:/usr/bin/gdb}"
 			},
+		],
+		"version": "2.0.0"
+	}
+
+snippet launch-c-lldp launch.json for C projects with lldb
+	{
+		"configurations": [
+			{
+				"name": "${1:debug} (lldb)",
+				"type": "lldb",
+				"request": "launch",
+				"program": "${2:\${workspaceFolder\}/a.out}",
+				"args": [${3}],
+				"stopAtEntry": ${4:true},
+				"cwd": "${5:\${workspaceFolder\}}",
+				"environment": [],
+				"externalConsole": false,
+				"MIMode": "lldb",
+				"setupCommands": [
+					{
+						"description": "Enable pretty-printing for lldb",
+						"text": "-enable-pretty-printing",
+						"ignoreFailures": false
+					},
+					{
+						"description": "Set Disassembly Flavor to Intel",
+						"text": "-gdb-set disassembly-flavor intel",
+						"ignoreFailures": false
+					}
+				],
+				"preLaunchTask": "${6:build}",
+				"miDebuggerPath": "${7:/usr/bin/lldb}"
+			}
 		],
 		"version": "2.0.0"
 	}
@@ -51,6 +84,6 @@ snippet tasks-make tasks.json for Makefile-based C projects
 				},
 				"detail": ""
 			}
-		],
+		]
 		"version": "2.0.0"
 	}
