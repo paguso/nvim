@@ -20,5 +20,17 @@ return { -- Autoformat
 			-- is found.
 			-- javascript = { { "prettierd", "prettier" } },
 		},
+		formatters = {
+			-- Use the nearest .astylerc above the file (e.g. a project's code
+			-- style). If there is none, pass --project=none: astyle otherwise
+			-- picks up any .astylerc in its working directory (nvim's cwd),
+			-- which may belong to an unrelated project.
+			astyle = {
+				prepend_args = function(_, ctx)
+					local rc = vim.fs.find({ ".astylerc", "_astylerc" }, { upward = true, path = ctx.dirname })[1]
+					return rc and { "--options=" .. rc } or { "--project=none" }
+				end,
+			},
+		},
 	},
 }
