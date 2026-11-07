@@ -1,156 +1,78 @@
 return {
-	{
-		"neovim/nvim-lspconfig",
-		"hrsh7th/cmp-nvim-lsp",
-		"hrsh7th/cmp-buffer",
-		"hrsh7th/cmp-path",
-		"hrsh7th/cmp-cmdline",
-	},
-	{
-		"L3MON4D3/LuaSnip",
-		-- follow latest release.
-		version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
-		-- install jsregexp (optional!).
-		-- build = "make install_jsregexp"
-		dependencies = {
-			"saadparwaiz1/cmp_luasnip",
-			"rafamadriz/friendly-snippets",
+	"saghen/blink.cmp",
+	-- optional: provides snippets for the snippet source
+	dependencies = {
+		"rafamadriz/friendly-snippets",
+		{
+			"L3MON4D3/LuaSnip",
+			version = "v2.*",
+			config = function()
+				-- VS Code-style snippets (friendly-snippets)
+				require("luasnip.loaders.from_vscode").lazy_load()
+				-- SnipMate-style snippets from ~/.config/nvim/snippets
+				require("luasnip.loaders.from_snipmate").lazy_load({
+					paths = { vim.fn.stdpath("config") .. "/snippets" },
+				})
+			end,
 		},
-		config = function()
-			-- Load SnipMate-like snippets
-			require("luasnip.loaders.from_snipmate").load({ path = "~/.config/nvim/snippets" })
-		end,
 	},
-	{
-		"hrsh7th/nvim-cmp",
-		config = function()
-			local has_words_before = function()
-				unpack = unpack or table.unpack
-				local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-				return col ~= 0
-					and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-			end
 
-			local luasnip = require("luasnip")
+	-- use a release tag to download pre-built binaries
+	version = "1.*",
+	-- AND/OR build from source
+	-- build = 'cargo build --release',
+	-- If you use nix, you can build from source with:
+	-- build = 'nix run .#build-plugin',
 
-			-- Set up nvim-cmp.
-			local cmp = require("cmp")
+	---@module 'blink.cmp'
+	---@type blink.cmp.Config
+	opts = {
+		-- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
+		-- 'super-tab' for mappings similar to vscode (tab to accept)
+		-- 'enter' for enter to accept
+		-- 'none' for no mappings
+		--
+		-- All presets have the following mappings:
+		-- C-space: Open menu or open docs if already open
+		-- C-n/C-p or Up/Down: Select next/previous item
+		-- C-e: Hide menu
+		-- C-k: Toggle signature help (if signature.enabled = true)
+		--
+		-- See :h blink-cmp-config-keymap for defining your own keymap
+		keymap = {
+			preset = "default",
+			["<C-k>"] = { "select_prev", "fallback" },
+			["<C-j>"] = { "select_next", "fallback" },
+			["<C-enter>"] = { "accept", "fallback" },
+			-- jump forward/backward through snippet placeholders
+			["<C-l>"] = { "snippet_forward", "fallback" },
+			["<C-h>"] = { "snippet_backward", "fallback" },
+		},
 
-			cmp.setup({
-				snippet = {
-					-- REQUIRED - you must specify a snippet engine
-					expand = function(args)
-						-- vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-						require("luasnip").lsp_expand(args.body) -- For `luasnip` users.
-						-- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-						-- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-					end,
-				},
-				window = {
-					completion = cmp.config.window.bordered(),
-					documentation = cmp.config.window.bordered(),
-				},
-				mapping = cmp.mapping.preset.insert({
-					["<C-j>"] = cmp.mapping.select_next_item(),
-					["<C-k>"] = cmp.mapping.select_prev_item(),
-					["<C-b>"] = cmp.mapping.scroll_docs(-4),
-					["<C-f>"] = cmp.mapping.scroll_docs(4),
-					["<C-Space>"] = cmp.mapping.complete(),
-					["<C-e>"] = cmp.mapping.abort(),
-					["<C-CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+		-- use LuaSnip as the snippet engine
+		snippets = { preset = "luasnip" },
 
-					-- Think of <c-l> as moving to the right of your snippet expansion.
-					--  So if you have a snippet that's like:
-					--  function $name($args)
-					--    $body
-					--  end
-					--
-					-- <c-l> will move you to the right of each of the expansion locations.
-					-- <c-h> is similar, except moving you backwards.
-					["<C-l>"] = cmp.mapping(function()
-						if luasnip.expand_or_locally_jumpable() then
-							luasnip.expand_or_jump()
-						end
-					end, { "i", "s" }),
-					["<C-h>"] = cmp.mapping(function()
-						if luasnip.locally_jumpable(-1) then
-							luasnip.jump(-1)
-						end
-					end, { "i", "s" }),
-					-------other mappings --------
+		appearance = {
+			-- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+			-- Adjusts spacing to ensure icons are aligned
+			nerd_font_variant = "mono",
+		},
 
-					--[[ ["<Tab>"] = cmp.mapping(function(fallback)
-						if cmp.visible() then
-							cmp.select_next_item()
-							-- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable()
-							-- that way you will only jump inside the snippet region
-						elseif luasnip.expand_or_jumpable() then
-							luasnip.expand_or_jump()
-						elseif has_words_before() then
-							cmp.complete()
-						else
-							fallback()
-						end
-					end, { "i", "s" }),
+		-- (Default) Only show the documentation popup when manually triggered
+		completion = { documentation = { auto_show = false }, ghost_text = { enabled = true } },
 
-					["<S-Tab>"] = cmp.mapping(function(fallback)
-						if cmp.visible() then
-							cmp.select_prev_item()
-						elseif luasnip.jumpable(-1) then
-							luasnip.jump(-1)
-						else
-							fallback()
-						end
-					end, { "i", "s" }), ]]
-				}),
+		-- Default list of enabled providers defined so that you can extend it
+		-- elsewhere in your config, without redefining it, due to `opts_extend`
+		sources = {
+			default = { "lsp", "path", "snippets", "buffer" },
+		},
 
-				sources = cmp.config.sources({
-					{ name = "nvim_lsp" },
-					-- { name = 'vsnip' }, -- For vsnip users.
-					{ name = "luasnip" }, -- For luasnip users.
-					-- { name = 'ultisnips' }, -- For ultisnips users.
-					-- { name = 'snippy' }, -- For snippy users.
-				}, {
-					{ name = "buffer" },
-				}),
-			})
-
-			-- Set configuration for specific filetype.
-			--cmp.setup.filetype("gitcommit", {
-			--	sources = cmp.config.sources({
-			--		{ name = "git" }, -- You can specify the `git` source if [you were installed it](https://github.com/petertriho/cmp-git).
-			--	}, {
-			--		{ name = "buffer" },
-			--	}),
-			--})
-
-			-- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-			cmp.setup.cmdline({ "/", "?" }, {
-				mapping = cmp.mapping.preset.cmdline(),
-				sources = {
-					{ name = "buffer" },
-				},
-			})
-
-			-- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-			cmp.setup.cmdline(":", {
-				mapping = cmp.mapping.preset.cmdline(),
-				sources = cmp.config.sources({
-					{ name = "path" },
-				}, {
-					{ name = "cmdline" },
-				}),
-			})
-
-			-- Set up lspconfig.
-			--	local capabilities = require("cmp_nvim_lsp").default_capabilities()
-			-- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
-			--	require("lspconfig")['lua_ls'].setup({
-			--		capabilities = capabilities,
-			--	})
-			--	require("lspconfig")["clangd"].setup({
-			--		capabilities = capabilities,
-			--	})
-		end,
+		-- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
+		-- You may use a lua implementation instead by using `implementation = "lua"` or fallback to the lua implementation,
+		-- when the Rust fuzzy matcher is not available, by using `implementation = "prefer_rust"`
+		--
+		-- See the fuzzy documentation for more information
+		fuzzy = { implementation = "prefer_rust_with_warning" },
 	},
+	opts_extend = { "sources.default" },
 }

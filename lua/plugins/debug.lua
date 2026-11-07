@@ -179,16 +179,6 @@ return {
 	},
 
 	{
-		"folke/neodev.nvim",
-		opts = {},
-		config = function()
-			require("neodev").setup({
-				library = { plugins = { "nvim-dap-ui" }, types = true },
-			})
-		end,
-	},
-
-	{
 		"jay-babu/mason-nvim-dap.nvim",
 		opts = {
 			-- Makes a best effort to setup the various debuggers with
